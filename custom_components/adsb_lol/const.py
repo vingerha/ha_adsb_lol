@@ -4,13 +4,18 @@ from homeassistant.const import STATE_UNKNOWN, Platform
 DOMAIN = "adsb_lol"
 
 # default values for options
+CONF_REFRESH_INTERVAL = "refresh_interval"
 DEFAULT_REFRESH_INTERVAL = 15
 DEFAULT_TIMERANGE = 30
-DEFAULT_RADIUS = 400
+
+CONF_RADIUS = "radius"
+ATTR_DEFAULT_RADIUS = 40
 
 DEFAULT_NAME = "ADSB.lol Sensor"
 DEFAULT_PATH = "adsb_lol"
 DEFAULT_PATH_GEOJSON = "www/adsb_lol"
+
+CONF_REQUEST_TYPE = "request_type"
 
 CONF_EXTRACT_TYPE = "extract_type"
 CONF_URL = "url"
@@ -33,11 +38,9 @@ ATTR_LONGITUDE = "longitude"
 
 CONF_FILE = "file"
 CONF_DEVICE_TRACKER_ID = "device_tracker_id"
-CONF_DIRECTION = "direction"
 CONF_NAME = "name"
-CONF_RADIUS = "radius"
 CONF_REFRESH_INTERVAL = "refresh_interval"
-CONF_REGISTRATION = "registration"
+
 
 CONF_ICON = "icon"
 CONF_SERVICE_TYPE = "service_type"
