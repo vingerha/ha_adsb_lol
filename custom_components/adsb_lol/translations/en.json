@@ -1,0 +1,23 @@
+{
+  "config": {
+    "step": {
+      "user": {
+		"menu_options": {
+          "callsign": "Track by callsign",
+          "local_stops": "Scheduled departure on stops in your vicinity",
+		  "source": "Setup a new data source",
+		  "remove": "Remove an existing data source, e.g. to free up space"
+        },
+        "description": "Select your choice "
+      },
+	  "callsign": {
+        "data": {
+          "url_callsign": "Select url",
+		  "name": "Name",
+		  "callsign": "Callsign"
+        },
+        "description": "Select from existing sources in your gtfs2 folder [(docu)](https://github.com/vingerha/gtfs2/wiki/1.-Initial-setup:-the-static-data-source)"
+      }
+	}
+  }
+}

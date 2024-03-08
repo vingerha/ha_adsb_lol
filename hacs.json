@@ -1,0 +1,5 @@
+{
+  "name": "ADSB.lol for HomeAssistant",
+  "render_readme": true,
+  "homeassistant": "2024.1"
+}
