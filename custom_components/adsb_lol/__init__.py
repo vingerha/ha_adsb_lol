@@ -1,4 +1,4 @@
-"""The GTFS integration."""
+"""The ADSB integration."""
 from __future__ import annotations
 
 import logging
@@ -8,6 +8,7 @@ from homeassistant.core import HomeAssistant, ServiceCall
 from datetime import timedelta
 
 from .const import DOMAIN, PLATFORMS, DEFAULT_PATH, DEFAULT_REFRESH_INTERVAL
+from .coordinator import ADSBUpdateCoordinator
 from homeassistant.const import CONF_HOST
 import voluptuous as vol
 
@@ -15,10 +16,10 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
-    """Set up GTFS from a config entry."""
+    """Set up ADSB from a config entry."""
     hass.data.setdefault(DOMAIN, {})
    
-    coordinator = GTFSUpdateCoordinator(hass, entry)    
+    coordinator = ADSBUpdateCoordinator(hass, entry)    
 
     if not coordinator.last_update_success:
         raise ConfigEntryNotReady

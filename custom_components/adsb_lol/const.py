@@ -11,9 +11,11 @@ DEFAULT_RADIUS = 400
 DEFAULT_NAME = "ADSB.lol Sensor"
 DEFAULT_PATH = "adsb_lol"
 DEFAULT_PATH_GEOJSON = "www/adsb_lol"
-DEFAULT_PATH_RT = "www/adsb_lol"
 
-DEFAULT_ATTR_URL_REGISTRATION = "https://api.adsb.lol/v2/callsign"
+CONF_EXTRACT_TYPE = "extract_type"
+CONF_URL = "url"
+DEFAULT_ATTR_URL = "https://api.adsb.lol/v2"
+CONF_EXTRACT_PARAM = "extract_param"
 
 CONF_DATA = "data"
 CONF_DESTINATION = "destination"
@@ -28,7 +30,7 @@ ATTR_DEVICE_CLASS = "device_class"
 ATTR_LATITUDE = "latitude"
 ATTR_LONGITUDE = "longitude"
 
-CONF_URL_REGISTRATION = "url_registration"
+
 CONF_FILE = "file"
 CONF_DEVICE_TRACKER_ID = "device_tracker_id"
 CONF_DIRECTION = "direction"

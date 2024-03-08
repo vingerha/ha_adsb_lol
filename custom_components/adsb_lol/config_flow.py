@@ -14,10 +14,12 @@ from homeassistant.helpers import selector
 from .const import (
     DEFAULT_PATH, 
     DOMAIN, 
+    CONF_NAME,
     DEFAULT_REFRESH_INTERVAL, 
-    CONF_URL_REGISTRATION,
-    CONF_REGISTRATION,
-    DEFAULT_ATTR_URL_REGISTRATION
+    CONF_URL,
+    CONF_EXTRACT_TYPE,
+    CONF_EXTRACT_PARAM,
+    DEFAULT_ATTR_URL
 )    
 
 from .adsb_helper import (
@@ -44,24 +46,24 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         
         return self.async_show_menu(
             step_id="user",
-            menu_options=["registration", "local_stops", "source","remove"],
+            menu_options=["flight_details"],
             description_placeholders={
                 "model": "Example model",
             }
         )
                    
-    async def async_step_registration(self, user_input: dict | None = None) -> FlowResult:
+    async def async_step_flight_details(self, user_input: dict | None = None) -> FlowResult:
         """Handle the source."""
         errors: dict[str, str] = {}      
         if user_input is None:
-            datasources = get_datasources(self.hass, DEFAULT_PATH)
             return self.async_show_form(
-                step_id="registration",
+                step_id="flight_details",
                 data_schema=vol.Schema(
                     {
-                        vol.Required(CONF_URL_CALLSIGN, default=DEFAULT_ATTR_URL_REGISTRATION): vol.In(datasources),
+                        vol.Required(CONF_EXTRACT_TYPE): selector.SelectSelector(selector.SelectSelectorConfig(options=["registration", "callsign"], translation_key="extract_type")),
+                        vol.Required(CONF_EXTRACT_PARAM): str,
+                        vol.Required(CONF_URL, default=DEFAULT_ATTR_URL): str,
                         vol.Required(CONF_NAME): str,
-                        vol.Required(CONF_REGISTRATION): str,
                     },
                 ),
             )

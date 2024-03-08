@@ -14,7 +14,9 @@ import homeassistant.util.dt as dt_util
 
 from .const import (
     ATTR_LATITUDE,
+    DOMAIN,
 )
+
 from .coordinator import ADSBUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
@@ -33,21 +35,21 @@ async def async_setup_entry(
     ]
     await coordinator.async_config_entry_first_refresh()
     sensors.append(
-            ADSBFlightRegistrationTrackerSensor(coordinator)
+            ADSBFlightTrackerSensor(coordinator)
         )
 
     async_add_entities(sensors, False)
     
-class ADSBFlightRegistrationTrackerSensor(CoordinatorEntity, SensorEntity):
+class ADSBFlightTrackerSensor(CoordinatorEntity, SensorEntity):
     """Implementation of a ADSB Flight tracker via registration departures sensor."""
 
-    def __init__(self, stop, coordinator) -> None:
+    def __init__(self, coordinator) -> None:
         """Initialize the ADSB sensor."""
         super().__init__(coordinator)
-        self._name = stop["stop_id"]
+        self._name = self.coordinator.data['registration']
         self._attributes: dict[str, Any] = {}
 
-        self._attr_unique_id = f"adsb-{self._name}_{self.coordinator.data['name']}"
+        self._attr_unique_id = f"adsb-{self._name}_{self.coordinator.data['registration']}"
         self._attr_device_info = DeviceInfo(
             name=f"ADSB - {self._name}",
             entry_type=DeviceEntryType.SERVICE,
@@ -61,7 +63,7 @@ class ADSBFlightRegistrationTrackerSensor(CoordinatorEntity, SensorEntity):
     @property
     def name(self) -> str:
         """Return the name of the sensor."""
-        return self._name + "_registration_tracker"
+        return self._name + "_flight_tracker"
         
     @callback
     def _handle_coordinator_update(self) -> None:
@@ -72,8 +74,9 @@ class ADSBFlightRegistrationTrackerSensor(CoordinatorEntity, SensorEntity):
     def _update_attrs(self):  # noqa: C901 PLR0911
         _LOGGER.debug("SENSOR: %s, update with attr data: %s", self._name, self.coordinator.data)
         self._state: str | None = None
-        self._state = self.coordinator.data["registration"]
+        self._state = self.coordinator.data["callsign"]
+        self._attr_native_value = self._state 
 
          
-        self._attr_extra_state_attributes = ""
+        self._attr_extra_state_attributes = self.coordinator.data
         return self._attr_extra_state_attributes

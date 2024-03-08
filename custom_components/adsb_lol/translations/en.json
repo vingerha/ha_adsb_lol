@@ -3,20 +3,18 @@
     "step": {
       "user": {
 		"menu_options": {
-          "callsign": "Track by callsign",
-          "local_stops": "Scheduled departure on stops in your vicinity",
-		  "source": "Setup a new data source",
-		  "remove": "Remove an existing data source, e.g. to free up space"
+          "flight_details": "Search for flight details"
         },
         "description": "Select your choice "
       },
-	  "callsign": {
+	  "flight_details": {
         "data": {
-          "url_callsign": "Select url",
+		  "extract_type": "Find flight using:",
+          "url": "Select url",
 		  "name": "Name",
-		  "callsign": "Callsign"
+		  "extract_param": "flight parameter (registration of callsign)"
         },
-        "description": "Select from existing sources in your gtfs2 folder [(docu)](https://github.com/vingerha/gtfs2/wiki/1.-Initial-setup:-the-static-data-source)"
+        "description": "Select"
       }
 	}
   }
