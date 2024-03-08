@@ -1,7 +1,7 @@
 """Constants for the ADSB.lol integration."""
 from homeassistant.const import STATE_UNKNOWN, Platform
 
-DOMAIN = "adsb.lol"
+DOMAIN = "adsb_lol"
 
 # default values for options
 DEFAULT_REFRESH_INTERVAL = 15
@@ -9,9 +9,9 @@ DEFAULT_TIMERANGE = 30
 DEFAULT_RADIUS = 400
 
 DEFAULT_NAME = "ADSB.lol Sensor"
-DEFAULT_PATH = "adsb.lol"
-DEFAULT_PATH_GEOJSON = "www/adsb.lol"
-DEFAULT_PATH_RT = "www/adsb.lol"
+DEFAULT_PATH = "adsb_lol"
+DEFAULT_PATH_GEOJSON = "www/adsb_lol"
+DEFAULT_PATH_RT = "www/adsb_lol"
 
 DEFAULT_ATTR_URL_REGISTRATION = "https://api.adsb.lol/v2/callsign"
 
