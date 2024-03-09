@@ -12,19 +12,20 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import selector
 
 from .const import (
-    DEFAULT_PATH, 
     DOMAIN, 
     CONF_NAME,
     CONF_REFRESH_INTERVAL,
-    DEFAULT_REFRESH_INTERVAL, 
+    ATTR_DEFAULT_REFRESH_INTERVAL, 
     CONF_URL,
     CONF_EXTRACT_TYPE,
     CONF_EXTRACT_PARAM,
-    DEFAULT_ATTR_URL,
+    ATTR_DEFAULT_URL,
     CONF_EXTRACT_TYPE,
     CONF_RADIUS,
     ATTR_DEFAULT_RADIUS,
-    CONF_DEVICE_TRACKER_ID
+    CONF_DEVICE_TRACKER_ID,
+    CONF_ALTITUDE_LIMIT,
+    ATTR_DEFAULT_ALTITUDE_LIMIT
 )    
 
 from .adsb_helper import (
@@ -67,7 +68,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     {
                         vol.Required(CONF_EXTRACT_TYPE): selector.SelectSelector(selector.SelectSelectorConfig(options=["registration", "callsign", "icao_hex"], translation_key="extract_type")),
                         vol.Required(CONF_EXTRACT_PARAM): str,
-                        vol.Required(CONF_URL, default=DEFAULT_ATTR_URL): str,
+                        vol.Required(CONF_URL, default=ATTR_DEFAULT_URL): str,
                         vol.Required(CONF_NAME): str,
                     },
                 ),
@@ -90,7 +91,8 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                             selector.EntitySelectorConfig(domain=["person","zone"]),                          
                         ),
                         vol.Required(CONF_RADIUS, default=ATTR_DEFAULT_RADIUS): vol.All(vol.Coerce(int), vol.Range(min=0, max=440)),
-                        vol.Required(CONF_URL, default=DEFAULT_ATTR_URL): str,
+                        vol.Required(CONF_ALTITUDE_LIMIT, default=ATTR_DEFAULT_ALTITUDE_LIMIT): vol.All(vol.Coerce(int), vol.Range(min=0, max=15)),
+                        vol.Required(CONF_URL, default=ATTR_DEFAULT_URL): str,
                         vol.Required(CONF_NAME): str, 
                     },
                 ),
@@ -101,46 +103,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_create_entry(
                 title=user_input[CONF_NAME], data=self._user_inputs
             )           
-            
-
-
-    async def _check_config(self, data):
-        self._pygtfs = await self.hass.async_add_executor_job(
-            get_gtfs, self.hass, DEFAULT_PATH, data, False
-        )
-        if self._pygtfs == "no_data_file":
-            return "no_data_file"
-        self._data = {
-            "schedule": self._pygtfs,
-            "origin": data["origin"],
-            "destination": data["destination"],
-            "offset": 0,
-            "include_tomorrow": True,
-            "gtfs_dir": DEFAULT_PATH,
-            "name": data["name"],
-            "next_departure": None,
-            "file": data["file"],
-            "route_type": data["route_type"]
-        }
-        # check and/or add indexes
-        check_index = await self.hass.async_add_executor_job(
-                    check_datasource_index, self.hass, self._pygtfs, DEFAULT_PATH, data["file"]
-                )
-        try:
-            self._data["next_departure"] = await self.hass.async_add_executor_job(
-                get_next_departure, self
-            )
-        except Exception as ex:  # pylint: disable=broad-except
-            _LOGGER.error(
-                "Config: error getting gtfs data from generic helper: %s",
-                {ex},
-                exc_info=1,
-            )
-            return "generic_failure"
-        if self._data["next_departure"]:
-            return None
-        return "stop_incorrect"
-        
+                   
     @staticmethod
     @callback
     def async_get_options_flow(
@@ -161,11 +124,15 @@ class ADSBOptionsFlowHandler(config_entries.OptionsFlow):
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
         """Manage the options."""
-        if user_input is not None:
-            opt_schema = {
-                        vol.Optional(CONF_REFRESH_INTERVAL, default=self.config_entry.options.get(CONF_REFRESH_INTERVAL, DEFAULT_REFRESH_INTERVAL)): vol.All(vol.Coerce(int), vol.Range(min=2)),
-                    }
+        if user_input is None:
             return self.async_show_form(
                 step_id="init",
-                data_schema=vol.Schema(opt_schema)
-            )        
+                data_schema=vol.Schema(
+                    {
+                        vol.Optional(CONF_REFRESH_INTERVAL, default=self.config_entry.options.get(CONF_REFRESH_INTERVAL, ATTR_DEFAULT_REFRESH_INTERVAL)): vol.All(vol.Coerce(int), vol.Range(min=1)),
+                    },
+                ),
+            ) 
+        self._user_inputs.update(user_input)
+        _LOGGER.debug(f"UserInputs Options Init: {self._user_inputs}")
+        return self.async_create_entry(title="", data=self._user_inputs)            

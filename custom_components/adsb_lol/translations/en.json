@@ -22,7 +22,8 @@
 		  "point_of_interest": "Search flights around:",
           "url": "Select url",
 		  "name": "Name",
-		  "radius": "Radius (km)"
+		  "radius": "Radius (km)",
+		  "altitude_limit": "Only aircraft below altitude (km), leave 0 for all"
         },
         "description": "Seearch for aircraft around a chosen point of interest"
       }	  

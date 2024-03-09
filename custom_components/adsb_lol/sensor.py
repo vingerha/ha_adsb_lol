@@ -17,7 +17,7 @@ from .const import (
     DOMAIN,
 )
 
-from .coordinator import ADSBUpdateCoordinator
+from .coordinator import ADSBUpdateCoordinator, ADSBPointUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -27,20 +27,18 @@ async def async_setup_entry(
     config_entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
     ) -> None:
-    """Initialize the setup."""   
+    """Initialize the setup."""  
+    sensors = []    
     if config_entry.data.get('device_tracker_id',None):
-        sensors = []
-        coordinator: ADSBUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id][
+        coordinator: ADSBPointUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id][
            "coordinator"
         ]
         await coordinator.async_config_entry_first_refresh()
         _LOGGER.debug("Incoming data: %s:", coordinator.data)
-        for aircraft in coordinator.data:
-            sensors.append(
-                    ADSBPointSensor(aircraft, coordinator, config_entry.data.get('device_tracker_id') )
-                )
+        sensors.append(
+                ADSBPointSensor(coordinator, config_entry.data.get('device_tracker_id') )
+            )
 
-    
     else:
         coordinator: ADSBUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id][
            "coordinator"
@@ -97,14 +95,14 @@ class ADSBFlightTrackerSensor(CoordinatorEntity, SensorEntity):
 class ADSBPointSensor(CoordinatorEntity, SensorEntity):
     """Implementation of a ADBS flights around poi sensor."""
 
-    def __init__(self, aircraft, coordinator, device_tracker_id) -> None:
+    def __init__(self, coordinator, device_tracker_id) -> None:
         """Initialize the ADSB sensor."""
-        super().__init__(coordinator)
-        self._name = aircraft["r"]
+        super().__init__(coordinator)             
+        self._name = device_tracker_id
         self._device_tracker_id = device_tracker_id
         self._attributes: dict[str, Any] = {}
 
-        self._attr_unique_id = f"adsb-{self._name}_{self._device_tracker_id}"
+        self._attr_unique_id = f"adsb-in-radius-{self._name}"
         self._attr_device_info = DeviceInfo(
             name=f"ADSB - {self._name}",
             entry_type=DeviceEntryType.SERVICE,
@@ -112,14 +110,13 @@ class ADSBPointSensor(CoordinatorEntity, SensorEntity):
             manufacturer="ADSB",
             model=self._name,
         )
-        self._aircraft = aircraft
         self._attributes = self._update_attrs()
         self._attr_extra_state_attributes = self._attributes
 
     @property
     def name(self) -> str:
         """Return the name of the sensor."""
-        return self._name + "_in_radius_" + self._device_tracker_id
+        return "flights_in_radius_" + self._name
 
     @callback
     def _handle_coordinator_update(self) -> None:
@@ -132,12 +129,10 @@ class ADSBPointSensor(CoordinatorEntity, SensorEntity):
         self._state: str | None = None
         # if no data or extracting, aircraft
         #state
-        self._attr_native_value = self._aircraft["flight"]      
-        self._attributes["latitude"] = self._aircraft["lat"]  
-        self._attributes["longitude"] = self._aircraft["lon"]
-        self._attributes["altitude_baro"] = self._aircraft["alt_baro"]   
-        self._attributes["altitude_geom"] = self._aircraft["alt_geom"]    
-        self._attributes["ground_speed"] = self._aircraft["gs"]        
-          
+        self._attr_native_value = len(self.coordinator.data)
+        
+        
+        self._attributes["aircraft"] = self.coordinator.data
         self._attr_extra_state_attributes = self._attributes
+
         return self._attr_extra_state_attributes        

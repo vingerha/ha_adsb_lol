@@ -7,8 +7,8 @@ from homeassistant.core import HomeAssistant, ServiceCall
 
 from datetime import timedelta
 
-from .const import DOMAIN, PLATFORMS, DEFAULT_PATH, DEFAULT_REFRESH_INTERVAL
-from .coordinator import ADSBUpdateCoordinator
+from .const import DOMAIN, PLATFORMS
+from .coordinator import ADSBUpdateCoordinator, ADSBPointUpdateCoordinator
 from homeassistant.const import CONF_HOST
 import voluptuous as vol
 
@@ -18,8 +18,10 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up ADSB from a config entry."""
     hass.data.setdefault(DOMAIN, {})
-   
-    coordinator = ADSBUpdateCoordinator(hass, entry)    
+    if entry.data.get('device_tracker_id',None):
+        coordinator = ADSBPointUpdateCoordinator(hass, entry)    
+    else:
+        coordinator = ADSBUpdateCoordinator(hass, entry)
 
     if not coordinator.last_update_success:
         raise ConfigEntryNotReady
