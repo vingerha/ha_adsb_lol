@@ -21,6 +21,12 @@ from .coordinator import ADSBUpdateCoordinator, ADSBPointUpdateCoordinator
 
 _LOGGER = logging.getLogger(__name__)
 
+def get_current_registrations(flights) -> set[str]:
+    """Return a list of present goals."""
+    result = set()
+    for key, value in flights.items():
+        result.add(key)
+    return result
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -34,28 +40,48 @@ async def async_setup_entry(
            "coordinator"
         ]
         await coordinator.async_config_entry_first_refresh()
-        _LOGGER.debug("Incoming data: %s:", coordinator.data)
         for key, value in coordinator.data.items():
-            _LOGGER.debug("Incoming data ac key: %s - value: %s", key, value)
             sensors.append(
                     ADSBPointACSensor(value, coordinator, config_entry.data.get('device_tracker_id') )
                 )
         sensors.append(
                 ADSBPointSensor(coordinator, config_entry.data.get('device_tracker_id') )
-            )                
-
+            )    
+            
     else:
-        coordinator: ADSBUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id][
+        coordinator_t: ADSBUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id][
            "coordinator"
         ]
-        await coordinator.async_config_entry_first_refresh()
+        await coordinator_t.async_config_entry_first_refresh()
         
         sensors.append(
-                ADSBFlightTrackerSensor(coordinator)
+                ADSBFlightTrackerSensor(coordinator_t)
             )
     
     async_add_entities(sensors, False)
     
+    # setup listening for new reg
+    current_registrations = get_current_registrations(coordinator.data)
+    
+    def _async_registrations_listener() -> None:
+        """Listen for new registrations and add sensors if they did not exist."""
+        received_registrations = get_current_registrations(coordinator.data)
+        new_registrations = received_registrations - current_registrations
+        _LOGGER.debug("New registrations: %s", new_registrations)
+        if new_registrations:
+            sensors = []
+            current_registrations.update(new_registrations)
+            for registration in new_registrations:
+                for key, value in coordinator.data.items():
+                    if key == registration:
+                        _LOGGER.debug("Listener: adding registration: %s", key)
+                        sensors.append(
+                                ADSBPointACSensor(value, coordinator, config_entry.data.get('device_tracker_id'))
+                            )
+            async_add_entities(sensors, False)
+
+    coordinator.async_add_listener(_async_registrations_listener)
+
 class ADSBFlightTrackerSensor(CoordinatorEntity, SensorEntity):
     """Implementation of a ADSB Flight tracker via registration departures sensor."""
 
@@ -92,8 +118,6 @@ class ADSBFlightTrackerSensor(CoordinatorEntity, SensorEntity):
         self._state: str | None = None
         self._state = self.coordinator.data["callsign"]
         self._attr_native_value = self._state 
-
-         
         self._attr_extra_state_attributes = self.coordinator.data
         return self._attr_extra_state_attributes
         
@@ -147,8 +171,7 @@ class ADSBPointACSensor(CoordinatorEntity, SensorEntity):
 
     def __init__(self, aircraft, coordinator, device_tracker_id) -> None:
         """Initialize the ADSB sensor."""
-        super().__init__(coordinator)     
-        _LOGGER.debug("SENSOR incoming data AC Point: %s:", aircraft)        
+        super().__init__(coordinator)            
         self._name = device_tracker_id + "_" + aircraft["registration"]
         self._device_tracker_id = device_tracker_id
         self._attributes: dict[str, Any] = {}
@@ -168,7 +191,7 @@ class ADSBPointACSensor(CoordinatorEntity, SensorEntity):
     @property
     def name(self) -> str:
         """Return the name of the sensor."""
-        return "flight_in_radius_" + str(self._name) + str(self._aircraft["registration"])
+        return "aircraft_radius_" + str(self._name)
 
     @callback
     def _handle_coordinator_update(self) -> None:
@@ -181,7 +204,6 @@ class ADSBPointACSensor(CoordinatorEntity, SensorEntity):
         self._state: str | None = None
         #dealing with updates form coordinator
         for k,v in self.coordinator.data.items():
-            _LOGGER.debug("SENSOR Point AC Reg: %s - Key: %s - Value:%s", self._aircraft["registration"], k, v)
             if self._aircraft["registration"] == k:
                 self._aircraft = v
             else:
