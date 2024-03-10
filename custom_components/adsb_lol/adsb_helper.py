@@ -17,20 +17,32 @@ def get_point_of_interest(self):
     response = requests.get(self._url)
     _LOGGER.debug ("Get flight rest output: %s", response.json())
     _response = []
+    _response_h = []
     aircraft = {}
+    aircraft_h = {}
     for ac in response.json()["ac"]:
-        _LOGGER.debug ("Get ac: %s", ac)
+#        _LOGGER.debug ("Get ac in: %s", ac)
         if self._altitude_limit == 0 or (self._altitude_limit > 0 and ac["alt_geom"] * 1000 / 0.3048 < self._altitude_limit):
             aircraft["callsign"] = ac["flight"]
             aircraft["registration"] = ac["r"]
+            self._reg = ac["r"]            
             aircraft["icao24"] = ac["hex"]
-            aircraft["groundspeed"] = ac["gs"]
-            aircraft["altitude_baro"] = ac["alt_baro"]
-            aircraft["altitude_geom"] = ac["alt_geom"]
+            aircraft["type"] = ac["t"]
+            aircraft["groundspeed_nmph"] = ac.get("gs",None)
+            aircraft["true_airspeed_nmph"] = ac.get("tas",None)
+            aircraft["mach"] = ac.get("mach", None)
+            aircraft["altitude_baro_ft"] = ac.get("alt_baro", None)
+            aircraft["altitude_geom_ft"] = ac.get("alt_geom", None)
             aircraft["latitude"] = ac["lat"]
             aircraft["longitude"] = ac["lon"]
-            _response.append(aircraft)
+            aircraft_h[str(self._reg)] = aircraft.copy()
+#            _LOGGER.debug ("Get ac append _h: %s", aircraft_h)
+#            _LOGGER.debug ("Get ac append: %s", aircraft)
+           
+#        _response.append(aircraft.copy())
+#        _LOGGER.debug ("Get ac _response: %s", _response)
+    _response_h = aircraft_h
+    _LOGGER.debug ("Get flight transformed _h: %s", _response_h)
+#    _LOGGER.debug ("Get flight transformed: %s", _response)
     
-    _LOGGER.debug ("Get flight transformed: %s", _response)
-    
-    return _response    
+    return _response_h   

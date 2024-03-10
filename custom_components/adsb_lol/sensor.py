@@ -35,9 +35,14 @@ async def async_setup_entry(
         ]
         await coordinator.async_config_entry_first_refresh()
         _LOGGER.debug("Incoming data: %s:", coordinator.data)
+        for key, value in coordinator.data.items():
+            _LOGGER.debug("Incoming data ac key: %s - value: %s", key, value)
+            sensors.append(
+                    ADSBPointACSensor(value, coordinator, config_entry.data.get('device_tracker_id') )
+                )
         sensors.append(
                 ADSBPointSensor(coordinator, config_entry.data.get('device_tracker_id') )
-            )
+            )                
 
     else:
         coordinator: ADSBUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id][
@@ -83,7 +88,7 @@ class ADSBFlightTrackerSensor(CoordinatorEntity, SensorEntity):
         super()._handle_coordinator_update()
 
     def _update_attrs(self):  # noqa: C901 PLR0911
-        _LOGGER.debug("SENSOR: %s, update with attr data: %s", self._name, self.coordinator.data)
+        _LOGGER.debug("SENSOR Tracker: %s, update with attr data: %s", self._name, self.coordinator.data)
         self._state: str | None = None
         self._state = self.coordinator.data["callsign"]
         self._attr_native_value = self._state 
@@ -125,7 +130,7 @@ class ADSBPointSensor(CoordinatorEntity, SensorEntity):
         super()._handle_coordinator_update()
 
     def _update_attrs(self):  # noqa: C901 PLR0911
-        _LOGGER.debug("SENSOR: %s, update with attr data: %s", self._name, self.coordinator.data)
+        _LOGGER.debug("SENSOR Point: %s, update with attr data: %s", self._name, self.coordinator.data)
         self._state: str | None = None
         # if no data or extracting, aircraft
         #state
@@ -135,4 +140,55 @@ class ADSBPointSensor(CoordinatorEntity, SensorEntity):
         self._attributes["aircraft"] = self.coordinator.data
         self._attr_extra_state_attributes = self._attributes
 
-        return self._attr_extra_state_attributes        
+        return self._attr_extra_state_attributes    
+
+class ADSBPointACSensor(CoordinatorEntity, SensorEntity):
+    """Implementation of a ADBS flights around poi sensor."""
+
+    def __init__(self, aircraft, coordinator, device_tracker_id) -> None:
+        """Initialize the ADSB sensor."""
+        super().__init__(coordinator)     
+        _LOGGER.debug("SENSOR incoming data AC Point: %s:", aircraft)        
+        self._name = device_tracker_id + "_" + aircraft["registration"]
+        self._device_tracker_id = device_tracker_id
+        self._attributes: dict[str, Any] = {}
+
+        self._attr_unique_id = f"adsb-in-radius-{self._name}"
+        self._attr_device_info = DeviceInfo(
+            name=f"ADSB - {self._name}",
+            entry_type=DeviceEntryType.SERVICE,
+            identifiers={(DOMAIN, f"ADSB - {self._name}")},
+            manufacturer="ADSB",
+            model=self._name,
+        )
+        self._aircraft = aircraft
+        self._attributes = self._update_attrs()
+        self._attr_extra_state_attributes = self._attributes
+
+    @property
+    def name(self) -> str:
+        """Return the name of the sensor."""
+        return "flight_in_radius_" + str(self._name) + str(self._aircraft["registration"])
+
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        """Handle updated data from the coordinator."""
+        self._update_attrs()
+        super()._handle_coordinator_update()
+
+    def _update_attrs(self):  # noqa: C901 PLR0911
+        _LOGGER.debug("SENSOR Point AC: %s, update with attr data: %s", self._name, self.coordinator.data)
+        self._state: str | None = None
+        #dealing with updates form coordinator
+        for k,v in self.coordinator.data.items():
+            _LOGGER.debug("SENSOR Point AC Reg: %s - Key: %s - Value:%s", self._aircraft["registration"], k, v)
+            if self._aircraft["registration"] == k:
+                self._aircraft = v
+            else:
+                self._aircraft = self._aircraft
+        #state
+        self._attr_native_value = self._aircraft["callsign"]
+        self._attributes = self._aircraft
+        self._attr_extra_state_attributes = self._attributes
+
+        return self._attr_extra_state_attributes         
