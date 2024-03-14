@@ -29,9 +29,6 @@ def get_current_registrations(flights) -> set[str]:
     for key, value in flights.items():
         result.add(key)
     return result
-    
-
-
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -52,6 +49,42 @@ async def async_setup_entry(
         sensors.append(
                 ADSBPointSensor(coordinator, config_entry.data.get('device_tracker_id') )
             )    
+            
+        # setup listening for new reg
+        current_registrations = get_current_registrations(coordinator.data)
+        
+        
+        
+        def _async_registrations_listener() -> None:
+            """Listen for new registrations and add sensors if they did not exist."""
+            received_registrations = get_current_registrations(coordinator.data)
+            new_registrations = received_registrations - current_registrations
+            old_registrations = current_registrations - received_registrations
+            _LOGGER.debug("New registrations: %s", new_registrations)
+            _LOGGER.debug("Old registrations: %s", old_registrations)
+            
+            if old_registrations:
+                entity_registry = er.async_get(hass)
+                entries = er.async_entries_for_config_entry(entity_registry, config_entry.entry_id)
+                for registration in old_registrations:
+                    for entry in entries:
+                        if entry.entity_id.startswith("sensor.") and entry.unique_id.startswith(registration):
+                            _LOGGER.debug("Removing registration: %s",registration)
+                            entity_registry.async_remove(entry.entity_id)          
+            
+            if new_registrations:
+                sensors = []
+                current_registrations.update(new_registrations)
+                for registration in new_registrations:
+                    for key, value in coordinator.data.items():
+                        if key == registration:
+                            _LOGGER.debug("Listener: adding registration: %s", key)
+                            sensors.append(
+                                    ADSBPointACSensor(value, coordinator, config_entry.data.get('device_tracker_id'))
+                                    )
+                async_add_entities(sensors, False)    
+                
+        coordinator.async_add_listener(_async_registrations_listener)
         
     else:
         coordinator_t: ADSBUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id][
@@ -65,41 +98,6 @@ async def async_setup_entry(
     
     async_add_entities(sensors, False)
     
-    # setup listening for new reg
-    current_registrations = get_current_registrations(coordinator.data)
-    
-    def _async_registrations_listener() -> None:
-        """Listen for new registrations and add sensors if they did not exist."""
-        received_registrations = get_current_registrations(coordinator.data)
-        new_registrations = received_registrations - current_registrations
-        old_registrations = current_registrations - received_registrations
-        _LOGGER.debug("New registrations: %s", new_registrations)
-        _LOGGER.debug("Old registrations: %s", old_registrations)
-        
-        if old_registrations:
-            entity_registry = er.async_get(hass)
-            entries = er.async_entries_for_config_entry(entity_registry, config_entry.entry_id)
-            for registration in old_registrations:
-                for entry in entries:
-                    if entry.entity_id.startswith("sensor.") and entry.unique_id.endswith(registration):
-                        _LOGGER.debug("Removing registration: %s",registration)
-                        entity_registry.async_remove(entry.entity_id)          
-        
-        if new_registrations:
-            sensors = []
-            current_registrations.update(new_registrations)
-            for registration in new_registrations:
-                for key, value in coordinator.data.items():
-                    if key == registration:
-                        _LOGGER.debug("Listener: adding registration: %s", key)
-                        sensors.append(
-                                ADSBPointACSensor(value, coordinator, config_entry.data.get('device_tracker_id'))
-                                )
-            async_add_entities(sensors, False)                                
-
-          
-
-    coordinator.async_add_listener(_async_registrations_listener)
 
 class ADSBFlightTrackerSensor(CoordinatorEntity, SensorEntity):
     """Implementation of a ADSB Flight tracker via registration departures sensor."""
@@ -152,11 +150,11 @@ class ADSBPointSensor(CoordinatorEntity, SensorEntity):
 
         self._attr_unique_id = f"adsb-in-radius-{self._name}"
         self._attr_device_info = DeviceInfo(
-            name=f"ADSB - {self._name}",
+            name=f"ADSB",
             entry_type=DeviceEntryType.SERVICE,
-            identifiers={(DOMAIN, f"ADSB - {self._name}")},
+            identifiers={(DOMAIN, "ADSB")},
             manufacturer="ADSB",
-            model=self._name,
+            model="ADSB",
         )
         self._attributes = self._update_attrs()
         self._attr_extra_state_attributes = self._attributes
@@ -191,17 +189,17 @@ class ADSBPointACSensor(CoordinatorEntity, SensorEntity):
     def __init__(self, aircraft, coordinator, device_tracker_id) -> None:
         """Initialize the ADSB sensor."""
         super().__init__(coordinator)            
-        self._name = device_tracker_id + "_" + aircraft["registration"]
+        self._name = aircraft["registration"] + "_in_radius_" + device_tracker_id
         self._device_tracker_id = device_tracker_id
         self._attributes: dict[str, Any] = {}
 
-        self._attr_unique_id = f"adsb-in-radius-{self._name}"
+        self._attr_unique_id = f"{self._name}"
         self._attr_device_info = DeviceInfo(
-            name=f"ADSB - {self._name}",
+            name=f"ADSB",
             entry_type=DeviceEntryType.SERVICE,
-            identifiers={(DOMAIN, f"ADSB - {self._name}")},
+            identifiers={(DOMAIN, "ADSB")},
             manufacturer="ADSB",
-            model=self._name,
+            model="ADSB",
         )
         self._aircraft = aircraft
         self._attributes = self._update_attrs()
@@ -210,7 +208,7 @@ class ADSBPointACSensor(CoordinatorEntity, SensorEntity):
     @property
     def name(self) -> str:
         """Return the name of the sensor."""
-        return "aircraft_radius_" + str(self._name)
+        return str(self._name)
 
     @callback
     def _handle_coordinator_update(self) -> None:

@@ -54,19 +54,26 @@ class ADSBUpdateCoordinator(DataUpdateCoordinator):
         self._flight = await self.hass.async_add_executor_job(
                     get_flight, self
                 )     
-
-        self._data = {
-            "registration": self._flight["ac"][0]["r"],
-            "callsign": self._flight["ac"][0]["flight"],
-            "type": self._flight["ac"][0]["t"],
-            "icao24": self._flight["ac"][0]["hex"],
-            "altitude_baro": self._flight["ac"][0]["alt_baro"],
-            "altitude_geom": self._flight["ac"][0]["alt_geom"],
-            "ground_speed": self._flight["ac"][0]["gs"],
-            "mach": self._flight["ac"][0]["mach"],
-            "latitude": self._flight["ac"][0]["lat"],
-            "longitude": self._flight["ac"][0]["lon"],
-        }  
+        if self._flight["ac"]:
+            self._data = {
+                "registration": self._flight["ac"][0]["r"],
+                "callsign": self._flight["ac"][0]["flight"],
+                "type": self._flight["ac"][0]["t"],
+                "icao24": self._flight["ac"][0]["hex"],
+                "altitude_baro": self._flight["ac"][0]["alt_baro"],
+                "altitude_geom": self._flight["ac"][0]["alt_geom"],
+                "ground_speed": self._flight["ac"][0]["gs"],
+                "mach": self._flight["ac"][0]["mach"],
+                "latitude": self._flight["ac"][0]["lat"],
+                "longitude": self._flight["ac"][0]["lon"],
+            }  
+        else:
+            self._data = { 
+                "registration": "Not found",
+                "callsign": "Not found",
+                "type": "Not found",
+                "icao24": "Not found",
+            } 
 
         _LOGGER.debug("Coordinator data: %s", self._data)        
 
