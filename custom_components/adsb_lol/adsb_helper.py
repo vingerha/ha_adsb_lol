@@ -42,7 +42,7 @@ def get_point_of_interest(self):
 #        _response.append(aircraft.copy())
 #        _LOGGER.debug ("Get ac _response: %s", _response)
     _response_h = aircraft_h
-    _LOGGER.debug ("Get flight transformed _h: %s", _response_h)
+#    _LOGGER.debug ("Get flight transformed _h: %s", _response_h)
 #    _LOGGER.debug ("Get flight transformed: %s", _response)
     
     return _response_h   

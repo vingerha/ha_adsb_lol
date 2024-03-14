@@ -3,6 +3,8 @@ from datetime import datetime
 import logging
 from typing import Any
 
+from homeassistant.helpers import entity_registry as er
+
 from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
@@ -27,6 +29,9 @@ def get_current_registrations(flights) -> set[str]:
     for key, value in flights.items():
         result.add(key)
     return result
+    
+
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -67,7 +72,10 @@ async def async_setup_entry(
         """Listen for new registrations and add sensors if they did not exist."""
         received_registrations = get_current_registrations(coordinator.data)
         new_registrations = received_registrations - current_registrations
+        old_registrations = current_registrations - received_registrations
         _LOGGER.debug("New registrations: %s", new_registrations)
+        _LOGGER.debug("Old registrations: %s", old_registrations)
+        
         if new_registrations:
             sensors = []
             current_registrations.update(new_registrations)
@@ -77,8 +85,17 @@ async def async_setup_entry(
                         _LOGGER.debug("Listener: adding registration: %s", key)
                         sensors.append(
                                 ADSBPointACSensor(value, coordinator, config_entry.data.get('device_tracker_id'))
-                            )
-            async_add_entities(sensors, False)
+                                )
+            async_add_entities(sensors, False)                                
+
+        if old_registrations:
+            entity_registry = er.async_get(hass)
+            entries = er.async_entries_for_config_entry(entity_registry, config_entry.entry_id)
+            for registration in old_registrations:
+                for entry in entries:
+                    if entry.entity_id.startswith("sensor.") and entry.unique_id.endswith(registration):
+                        _LOGGER.debug("Removing registration: %s",registration)
+                        entity_registry.async_remove(entry.entity_id)            
 
     coordinator.async_add_listener(_async_registrations_listener)
 
@@ -203,14 +220,21 @@ class ADSBPointACSensor(CoordinatorEntity, SensorEntity):
         _LOGGER.debug("SENSOR Point AC: %s, update with attr data: %s", self._name, self.coordinator.data)
         self._state: str | None = None
         #dealing with updates form coordinator
+        reg_found = False
         for k,v in self.coordinator.data.items():
             if self._aircraft["registration"] == k:
                 self._aircraft = v
+                reg_found = True
             else:
                 self._aircraft = self._aircraft
+            
         #state
         self._attr_native_value = self._aircraft["callsign"]
         self._attributes = self._aircraft
         self._attr_extra_state_attributes = self._attributes
 
-        return self._attr_extra_state_attributes         
+        return self._attr_extra_state_attributes   
+
+    async def remove_entity(self):
+        _LOGGER.debug("Func, remove entity")
+        await self.async_remove(force_remove=True)        
