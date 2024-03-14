@@ -36,7 +36,7 @@ class ADSBUpdateCoordinator(DataUpdateCoordinator):
             hass=hass,
             logger=_LOGGER,
             name=entry.entry_id,
-            update_interval=timedelta(minutes=entry.options.get("refresh_interval", DEFAULT_REFRESH_INTERVAL)),
+            update_interval=timedelta(minutes=entry.options.get("refresh_interval", ATTR_DEFAULT_REFRESH_INTERVAL)),
         )
         self.config_entry = entry
         self.hass = hass

@@ -52,7 +52,7 @@ async def async_setup_entry(
         sensors.append(
                 ADSBPointSensor(coordinator, config_entry.data.get('device_tracker_id') )
             )    
-            
+        
     else:
         coordinator_t: ADSBUpdateCoordinator = hass.data[DOMAIN][config_entry.entry_id][
            "coordinator"
@@ -76,6 +76,15 @@ async def async_setup_entry(
         _LOGGER.debug("New registrations: %s", new_registrations)
         _LOGGER.debug("Old registrations: %s", old_registrations)
         
+        if old_registrations:
+            entity_registry = er.async_get(hass)
+            entries = er.async_entries_for_config_entry(entity_registry, config_entry.entry_id)
+            for registration in old_registrations:
+                for entry in entries:
+                    if entry.entity_id.startswith("sensor.") and entry.unique_id.endswith(registration):
+                        _LOGGER.debug("Removing registration: %s",registration)
+                        entity_registry.async_remove(entry.entity_id)          
+        
         if new_registrations:
             sensors = []
             current_registrations.update(new_registrations)
@@ -88,14 +97,7 @@ async def async_setup_entry(
                                 )
             async_add_entities(sensors, False)                                
 
-        if old_registrations:
-            entity_registry = er.async_get(hass)
-            entries = er.async_entries_for_config_entry(entity_registry, config_entry.entry_id)
-            for registration in old_registrations:
-                for entry in entries:
-                    if entry.entity_id.startswith("sensor.") and entry.unique_id.endswith(registration):
-                        _LOGGER.debug("Removing registration: %s",registration)
-                        entity_registry.async_remove(entry.entity_id)            
+          
 
     coordinator.async_add_listener(_async_registrations_listener)
 
