@@ -4,6 +4,8 @@
 - configuration via the GUI
 - Track flight based on callsign or registration
 - Track flights around a zone/person
- 
-![image](https://github.com/vingerha/ha_adsb_lol/assets/44190435/84ad5589-ae26-4448-a06c-5b3f02d9218b)
+
+
+ ![image](https://github.com/vingerha/ha_adsb_lol/assets/44190435/7ea6450f-f403-4188-85a7-5499798df759)
+
 
