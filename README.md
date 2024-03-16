@@ -4,7 +4,7 @@
 
 # Collects aircraft from ADSB.lol into Home Assistant
 - configuration via the GUI
-- Track flight based on callsign or registration
+- Track flight based on icao, callsign or registration, either via entry in the config or via input_text/select
 - Track flights around a zone/person
 
 ## Installation
