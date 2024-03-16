@@ -15,7 +15,7 @@
 - add your setup via Settings > Devices & Services 
 
 
- ![image](https://github.com/vingerha/ha_adsb_lol/assets/44190435/7ea6450f-f403-4188-85a7-5499798df759)![image](https://github.com/vingerha/ha_adsb_lol/assets/44190435/6cb2b0cb-296b-4114-b0a2-21c445271d43)
+ ![image](https://github.com/vingerha/ha_adsb_lol/assets/44190435/7ea6450f-f403-4188-85a7-5499798df759)
 
 
 
