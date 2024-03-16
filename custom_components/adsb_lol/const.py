@@ -24,6 +24,7 @@ CONF_EXTRACT_TYPE = "extract_type"
 CONF_URL = "url"
 ATTR_DEFAULT_URL = "https://api.adsb.lol/v2"
 CONF_EXTRACT_PARAM = "extract_param"
+CONF_EXTRACT_PARAM_INPUT = "input_entity"
 
 
 

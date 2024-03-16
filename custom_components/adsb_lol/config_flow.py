@@ -19,6 +19,7 @@ from .const import (
     CONF_URL,
     CONF_EXTRACT_TYPE,
     CONF_EXTRACT_PARAM,
+    CONF_EXTRACT_PARAM_INPUT,
     ATTR_DEFAULT_URL,
     CONF_EXTRACT_TYPE,
     CONF_RADIUS,
@@ -52,7 +53,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         
         return self.async_show_menu(
             step_id="user",
-            menu_options=["flight_details","point_of_interest"],
+            menu_options=["flight_details","flight_details_input","point_of_interest"],
             description_placeholders={
                 "model": "Example model",
             }
@@ -66,7 +67,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 step_id="flight_details",
                 data_schema=vol.Schema(
                     {
-                        vol.Required(CONF_EXTRACT_TYPE): selector.SelectSelector(selector.SelectSelectorConfig(options=["registration", "callsign", "icao_hex"], translation_key="extract_type")),
+                        vol.Required(CONF_EXTRACT_TYPE): selector.SelectSelector(selector.SelectSelectorConfig(options=["registration", "callsign", "icao"], translation_key="extract_type")),
                         vol.Required(CONF_EXTRACT_PARAM): str,
                         vol.Required(CONF_URL, default=ATTR_DEFAULT_URL): str,
                         vol.Required(CONF_NAME): str,
@@ -77,7 +78,30 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         _LOGGER.debug(f"UserInputs Start End: {self._user_inputs}")
         return self.async_create_entry(
                 title=user_input[CONF_NAME], data=self._user_inputs
-            )           
+            ) 
+
+    async def async_step_flight_details_input(self, user_input: dict | None = None) -> FlowResult:
+        """Handle the source."""
+        errors: dict[str, str] = {}      
+        if user_input is None:
+            return self.async_show_form(
+                step_id="flight_details_input",
+                data_schema=vol.Schema(
+                    {
+                        vol.Required(CONF_EXTRACT_TYPE): selector.SelectSelector(selector.SelectSelectorConfig(options=["registration", "callsign", "icao"], translation_key="extract_type")),
+                        vol.Required(CONF_EXTRACT_PARAM_INPUT): selector.EntitySelector(
+                                selector.EntitySelectorConfig(domain=["input_text","input_select"]),                          
+                            ),
+                        vol.Required(CONF_URL, default=ATTR_DEFAULT_URL): str,
+                        vol.Required(CONF_NAME): str,
+                    },
+                ),
+            )
+        self._user_inputs.update(user_input)
+        _LOGGER.debug(f"UserInputs Start End: {self._user_inputs}")
+        return self.async_create_entry(
+                title=user_input[CONF_NAME], data=self._user_inputs
+            )             
             
     async def async_step_point_of_interest(self, user_input: dict | None = None) -> FlowResult:
         """Handle the source."""
@@ -100,9 +124,10 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         user_input[CONF_EXTRACT_TYPE] = "point"            
         self._user_inputs.update(user_input)
         _LOGGER.debug(f"UserInputs Start End: {self._user_inputs}")
+        
         return self.async_create_entry(
                 title=user_input[CONF_NAME], data=self._user_inputs
-            )           
+            )            
                    
     @staticmethod
     @callback

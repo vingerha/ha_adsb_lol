@@ -4,6 +4,7 @@
       "user": {
 		"menu_options": {
           "flight_details": "Search for flight details",
+		  "flight_details_input": "Search for flight details using an input select/text",
 		  "point_of_interest": "Search aircraft around a point of interest"
         },
         "description": "Select your choice "
@@ -17,6 +18,15 @@
         },
         "description": "Select"
       },
+	  "flight_details_input": {
+        "data": {
+		  "extract_type": "Find flight using:",
+          "url": "Select url",
+		  "name": "Name",
+		  "extract_param": "Entity providing parameter (registration or callsign)"
+        },
+        "description": "Select"
+      },	  
 	  "point_of_interest": {
         "data": {
 		  "point_of_interest": "Search flights around:",

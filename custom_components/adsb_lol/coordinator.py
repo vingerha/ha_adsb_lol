@@ -49,12 +49,18 @@ class ADSBUpdateCoordinator(DataUpdateCoordinator):
         _LOGGER.debug("Self data: %s", data) 
         options = self.config_entry.options
         
-        self._url = str(data["url"]) + "/" + str(data["extract_type"]) + "/" + str(data["extract_param"])
+        if data["input_entity"]:
+            extract_param = self.hass.states.get(data["input_entity"]).state
+        else:
+            extract_param = data["extract_param"]
+            
+        self._url = str(data["url"]) + "/" + str(data["extract_type"]) + "/" + str(extract_param)
             
         self._flight = await self.hass.async_add_executor_job(
                     get_flight, self
                 )     
-        if self._flight["ac"]:
+                
+        if self._flight.get("ac", None):
             self._data = {
                 "registration": self._flight["ac"][0]["r"],
                 "callsign": self._flight["ac"][0]["flight"],
@@ -68,6 +74,7 @@ class ADSBUpdateCoordinator(DataUpdateCoordinator):
                 "longitude": self._flight["ac"][0]["lon"],
             }  
         else:
+            _LOGGER.warning("No flights found for: %s", extract_param)
             self._data = { 
                 "registration": "Not found",
                 "callsign": "Not found",
