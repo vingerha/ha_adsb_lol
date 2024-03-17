@@ -26,11 +26,20 @@ from .const import (
     ATTR_DEFAULT_RADIUS,
     CONF_DEVICE_TRACKER_ID,
     CONF_ALTITUDE_LIMIT,
-    ATTR_DEFAULT_ALTITUDE_LIMIT
+    ATTR_DEFAULT_ALTITUDE_LIMIT,
+    CONF_ENTITY_PICTURE,
+    ATTR_DEFAULT_ENTITY_PICTURE,
+    CONF_ENTITY_PICTURE_ASC,
+    ATTR_DEFAULT_ENTITY_PICTURE_ASC,
+    CONF_ENTITY_PICTURE_DESC,
+    ATTR_DEFAULT_ENTITY_PICTURE_DESC,
+    ICONS_URL,
+    ICONS_PATH
 )    
 
 from .adsb_helper import (
     get_flight,
+    get_entity_pictures
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -74,6 +83,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     },
                 ),
             )
+        user_input[CONF_EXTRACT_PARAM_INPUT] = None
         self._user_inputs.update(user_input)
         _LOGGER.debug(f"UserInputs Start End: {self._user_inputs}")
         return self.async_create_entry(
@@ -150,14 +160,29 @@ class ADSBOptionsFlowHandler(config_entries.OptionsFlow):
     ) -> FlowResult:
         """Manage the options."""
         if user_input is None:
-            return self.async_show_form(
-                step_id="init",
-                data_schema=vol.Schema(
-                    {
-                        vol.Optional(CONF_REFRESH_INTERVAL, default=self.config_entry.options.get(CONF_REFRESH_INTERVAL, ATTR_DEFAULT_REFRESH_INTERVAL)): vol.All(vol.Coerce(int), vol.Range(min=1)),
-                    },
-                ),
-            ) 
+            entity_pictures = get_entity_pictures(self.hass, ICONS_PATH)
+            if self.config_entry.data.get(CONF_EXTRACT_TYPE, None) != "point":
+                return self.async_show_form(
+                    step_id="init",
+                    data_schema=vol.Schema(
+                        {
+                            vol.Optional(CONF_REFRESH_INTERVAL, default=self.config_entry.options.get(CONF_REFRESH_INTERVAL, ATTR_DEFAULT_REFRESH_INTERVAL)): vol.All(vol.Coerce(int), vol.Range(min=1)),
+                            vol.Optional(CONF_ENTITY_PICTURE, default=self.config_entry.options.get(CONF_ENTITY_PICTURE, ATTR_DEFAULT_ENTITY_PICTURE)): vol.In(entity_pictures),
+                        },
+                    ),
+                ) 
+            else:
+                return self.async_show_form(
+                    step_id="init",
+                    data_schema=vol.Schema(
+                        {
+                            vol.Optional(CONF_REFRESH_INTERVAL, default=self.config_entry.options.get(CONF_REFRESH_INTERVAL, ATTR_DEFAULT_REFRESH_INTERVAL)): vol.All(vol.Coerce(int), vol.Range(min=1)),
+                            vol.Optional(CONF_ENTITY_PICTURE_ASC, default=self.config_entry.options.get(CONF_ENTITY_PICTURE_ASC, ATTR_DEFAULT_ENTITY_PICTURE_ASC)): vol.In(entity_pictures),
+                            vol.Optional(CONF_ENTITY_PICTURE_DESC, default=self.config_entry.options.get(CONF_ENTITY_PICTURE_DESC, ATTR_DEFAULT_ENTITY_PICTURE_DESC)): vol.In(entity_pictures),
+                        },
+                    ),
+                ) 
+                
         self._user_inputs.update(user_input)
         _LOGGER.debug(f"UserInputs Options Init: {self._user_inputs}")
         return self.async_create_entry(title="", data=self._user_inputs)            

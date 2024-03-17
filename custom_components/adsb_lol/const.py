@@ -4,6 +4,9 @@ from homeassistant.const import STATE_UNKNOWN, Platform
 DOMAIN = "adsb_lol"
 PLATFORMS = [Platform.SENSOR]
 
+ICONS_PATH = f'custom_components/{DOMAIN}/icons'
+ICONS_URL = f'/{DOMAIN}/icons'
+
 # default values for options
 CONF_REFRESH_INTERVAL = "refresh_interval"
 ATTR_DEFAULT_REFRESH_INTERVAL = 5
@@ -26,7 +29,12 @@ ATTR_DEFAULT_URL = "https://api.adsb.lol/v2"
 CONF_EXTRACT_PARAM = "extract_param"
 CONF_EXTRACT_PARAM_INPUT = "input_entity"
 
-
+CONF_ENTITY_PICTURE = "entity_picture"
+CONF_ENTITY_PICTURE_ASC = "entity_picture_asc"
+CONF_ENTITY_PICTURE_DESC = "entity_picture_desc"
+ATTR_DEFAULT_ENTITY_PICTURE = "airplane_1.png"
+ATTR_DEFAULT_ENTITY_PICTURE_ASC = "airplane_asc.png"
+ATTR_DEFAULT_ENTITY_PICTURE_DESC = "airplane_desc.png"
 
 # constants used in helpers
 ATTR_DELAY = "Delay"

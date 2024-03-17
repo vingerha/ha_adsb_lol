@@ -12,8 +12,19 @@ from .coordinator import ADSBUpdateCoordinator, ADSBPointUpdateCoordinator
 from homeassistant.const import CONF_HOST
 import voluptuous as vol
 
+from .const import DOMAIN, ICONS_URL, ICONS_PATH
+
 _LOGGER = logging.getLogger(__name__)
 
+async def async_setup(hass, config):
+    
+    hass.http.register_static_path(
+            ICONS_URL,
+            hass.config.path(ICONS_PATH),
+            True
+        )
+
+    return True
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up ADSB from a config entry."""

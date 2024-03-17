@@ -1,6 +1,7 @@
 """Support for ADSB.lol"""
 from datetime import datetime
 import logging
+from PIL import Image
 from typing import Any
 
 from homeassistant.helpers import entity_registry as er
@@ -17,6 +18,10 @@ import homeassistant.util.dt as dt_util
 from .const import (
     ATTR_LATITUDE,
     DOMAIN,
+    ICONS_URL,
+    CONF_ENTITY_PICTURE,
+    CONF_ENTITY_PICTURE_ASC,
+    CONF_ENTITY_PICTURE_DESC
 )
 
 from .coordinator import ADSBUpdateCoordinator, ADSBPointUpdateCoordinator
@@ -136,6 +141,9 @@ class ADSBFlightTrackerSensor(CoordinatorEntity, SensorEntity):
         self._state = self.coordinator.data["callsign"]
         self._attr_native_value = self._state 
         self._attr_extra_state_attributes = self.coordinator.data
+        
+        self._attr_entity_picture = f'{ICONS_URL}/{self.coordinator.data[CONF_ENTITY_PICTURE]}'
+        
         return self._attr_extra_state_attributes
         
 class ADSBPointSensor(CoordinatorEntity, SensorEntity):
@@ -180,6 +188,7 @@ class ADSBPointSensor(CoordinatorEntity, SensorEntity):
         
         self._attributes["aircraft"] = self.coordinator.data
         self._attr_extra_state_attributes = self._attributes
+
 
         return self._attr_extra_state_attributes    
 
@@ -232,7 +241,11 @@ class ADSBPointACSensor(CoordinatorEntity, SensorEntity):
         self._attr_native_value = self._aircraft["callsign"]
         self._attributes = self._aircraft
         self._attr_extra_state_attributes = self._attributes
-
+        if self._aircraft.get("altitude_baro_rate", 0) < 0 or self._aircraft.get("altitude_geom_rate",0) < 0 :
+            self._attr_entity_picture = f'{ICONS_URL}/{self._aircraft[CONF_ENTITY_PICTURE_DESC]}'
+        else:
+            self._attr_entity_picture = f'{ICONS_URL}/{self._aircraft[CONF_ENTITY_PICTURE_ASC]}'
+            
         return self._attr_extra_state_attributes   
 
     async def remove_entity(self):
