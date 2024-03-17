@@ -9,9 +9,9 @@ from .const import CONF_EXTRACT_TYPE, CONF_ENTITY_PICTURE, CONF_ENTITY_PICTURE_A
 _LOGGER = logging.getLogger(__name__)
 
 def get_flight(self):
-    _LOGGER.debug ("Get flight with data: %s", self)
+    _LOGGER.debug ("Get flight with data: %s containing url: %s", self,self._url )
     response = requests.get(self._url)
-    _LOGGER.debug ("Get flight rest output: %s", response.json())
+    _LOGGER.debug ("Get flight rest output: %s", response)
     return response.json()
     
 def get_point_of_interest(self):
