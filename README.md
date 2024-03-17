@@ -17,6 +17,10 @@
 
  ![image](https://github.com/vingerha/ha_adsb_lol/assets/44190435/b9b4fd03-b48b-4cb5-8f93-900ae9434af9)
 
+Available entity pictures
+ ![entity_pictures](https://github.com/vingerha/ha_adsb_lol/assets/44190435/fe62482e-1be3-4ce3-969b-a88f60b23a70)
+
+
 
 
 
