@@ -4,6 +4,7 @@
 - configuration via the GUI
 - Track flight based on icao, callsign or registration, either via entry in the config or via input_text/select
 - Track flights around a zone/person
+- Allows to pick from different pictures, even differentiate pics between ascending/descnding aircraft
 
 ## Installation
 
