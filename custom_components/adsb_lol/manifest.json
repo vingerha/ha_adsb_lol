@@ -1,5 +1,5 @@
 {
-  "domain": "adsb_lol",
+  "domain": "ha_adsb_lol",
   "name": "ADSB flight tracking",
   "codeowners": ["@vingerha"],
   "config_flow": true,
