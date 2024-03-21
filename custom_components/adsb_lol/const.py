@@ -1,7 +1,7 @@
 """Constants for the ADSB.lol integration."""
 from homeassistant.const import STATE_UNKNOWN, Platform
 
-DOMAIN = "ha_adsb_lol"
+DOMAIN = "adsb_lol"
 PLATFORMS = [Platform.SENSOR]
 
 ICONS_PATH = f'custom_components/{DOMAIN}/icons'
@@ -19,7 +19,7 @@ ATTR_DEFAULT_ALTITUDE_LIMIT = 0
 
 DEFAULT_NAME = "ADSB.lol Sensor"
 DEFAULT_PATH = "adsb_lol"
-DEFAULT_PATH_GEOJSON = "www/ha_adsb_lol"
+DEFAULT_PATH_GEOJSON = "www/adsb_lol"
 
 CONF_REQUEST_TYPE = "request_type"
 
