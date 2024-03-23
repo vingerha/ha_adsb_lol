@@ -1,5 +1,6 @@
 ---
 name: Bug report
+about: Please make sure you have the details before opening a ticket
 title: ''
 labels: ''
 assignees: ''
