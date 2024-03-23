@@ -1,4 +1,4 @@
-name: Validate with hassfest and HACS
+name: Validate with Hassfest and HACS
 
 on:
   push:
