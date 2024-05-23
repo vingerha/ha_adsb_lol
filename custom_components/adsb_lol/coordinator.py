@@ -80,6 +80,7 @@ class ADSBUpdateCoordinator(DataUpdateCoordinator):
                 "altitude_geom_rate": self._flight["ac"][0].get("geom_rate", None),                 
                 "latitude": self._flight["ac"][0].get("lat",None),
                 "longitude": self._flight["ac"][0].get("lon",None),
+                "category": self._flight["ac"][0].get("category",None),
                 CONF_EXTRACT_TYPE: data[CONF_EXTRACT_TYPE],
                 CONF_ENTITY_PICTURE: options.get(CONF_ENTITY_PICTURE, ATTR_DEFAULT_ENTITY_PICTURE)
             }  

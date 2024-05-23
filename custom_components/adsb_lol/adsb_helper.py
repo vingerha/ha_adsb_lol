@@ -37,6 +37,7 @@ def get_point_of_interest(self):
             aircraft["altitude_geom_rate"] = ac.get("geom_rate", 0)            
             aircraft["latitude"] = ac.get("lat", None)
             aircraft["longitude"] = ac.get("lon", None)
+            aircraft["category"] = ac.get("category", None)
             aircraft[CONF_EXTRACT_TYPE] = self._CONF_EXTRACT_TYPE
             aircraft[CONF_ENTITY_PICTURE] = self._CONF_ENTITY_PICTURE
             aircraft[CONF_ENTITY_PICTURE_ASC] = self._CONF_ENTITY_PICTURE_ASC
