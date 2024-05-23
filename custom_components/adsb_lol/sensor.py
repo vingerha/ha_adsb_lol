@@ -248,7 +248,7 @@ class ADSBPointACSensor(CoordinatorEntity, SensorEntity):
         else:
             self._attr_entity_picture = f'{ICONS_URL}/{self._aircraft[CONF_ENTITY_PICTURE_ASC]}'
         # helicopter
-        if self._aircraft.get("category", None) = "A7":     
+        if self._aircraft.get("category", None) == "A7":     
             self._attr_entity_picture = f'{ICONS_URL}/{self._aircraft[CONF_ENTITY_PICTURE_HELI]}'
         return self._attr_extra_state_attributes   
 

@@ -26,6 +26,8 @@ from .const import (
     ATTR_DEFAULT_ENTITY_PICTURE_ASC,
     CONF_ENTITY_PICTURE_DESC,
     ATTR_DEFAULT_ENTITY_PICTURE_DESC,    
+    CONF_ENTITY_PICTURE_HELI,
+    ATTR_DEFAULT_ENTITY_PICTURE_HELI, 
 )    
 
 _LOGGER = logging.getLogger(__name__)
@@ -131,9 +133,11 @@ class ADSBPointUpdateCoordinator(DataUpdateCoordinator):
         self._url = str(data["url"]) + "/" + str(data["extract_type"]) + "/" + str(latitude) + "/" + str(longitude) + "/" + str(int(data["radius"] * 1000 / 1852) )
         _LOGGER.debug("Point search on URL: %s", self._url)
         self._CONF_EXTRACT_TYPE = data[CONF_EXTRACT_TYPE]
-        self._CONF_ENTITY_PICTURE = options.get(CONF_ENTITY_PICTURE, ATTR_DEFAULT_ENTITY_PICTURE)  
-        self._CONF_ENTITY_PICTURE_ASC = options.get(CONF_ENTITY_PICTURE_ASC, ATTR_DEFAULT_ENTITY_PICTURE_ASC)  
-        self._CONF_ENTITY_PICTURE_DESC = options.get(CONF_ENTITY_PICTURE_DESC, ATTR_DEFAULT_ENTITY_PICTURE_DESC)            
+        self._CONF_ENTITY_PICTURE = options.get(CONF_ENTITY_PICTURE, ATTR_DEFAULT_ENTITY_PICTURE)
+        self._CONF_ENTITY_PICTURE_ASC = options.get(CONF_ENTITY_PICTURE_ASC, ATTR_DEFAULT_ENTITY_PICTURE_ASC)
+        self._CONF_ENTITY_PICTURE_DESC = options.get(CONF_ENTITY_PICTURE_DESC, ATTR_DEFAULT_ENTITY_PICTURE_DESC)
+        self._CONF_ENTITY_PICTURE_HELI = options.get(CONF_ENTITY_PICTURE_HELI, ATTR_DEFAULT_ENTITY_PICTURE_HELI)           
+        
         self._data = await self.hass.async_add_executor_job(
                     get_point_of_interest, self
                 )   
