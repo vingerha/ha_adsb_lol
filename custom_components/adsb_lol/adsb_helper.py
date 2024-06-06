@@ -70,10 +70,9 @@ def get_entity_pictures(hass, path) -> dict[str]:
     
 def get_route(callsign):
     _url = ATTR_DEFAULT_URL_ROUTE
-    _callsign = callsign.strip()
     _headers = {"accept": "application/json","Content-Type": "application/json"}
     if callsign: 
-        _data = '{"planes": [{"callsign": "' + _callsign + '","lat": 0,"lng": 0}]}'
+        _data = '{"planes": [{"callsign": "' + callsign.strip() + '","lat": 0,"lng": 0}]}'
         response = requests.post(_url, headers = _headers, data = _data)
         if response.status_code == 200:
             _LOGGER.debug("Route details: %s", response.json())
