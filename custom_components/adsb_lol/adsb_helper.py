@@ -31,7 +31,7 @@ def get_point_of_interest(self):
     for ac in response.json()["ac"]:
         if self._altitude_limit == 0 or (self._altitude_limit > 0 and ac.get("alt_geom",0) < self._altitude_limit * 1000 / 0.3048 ):
             aircraft["callsign"] = ac.get("flight", None)
-            aircraft["registration"] = ac.get("r", None)
+            aircraft["registration"] = ac.get("r", "NoReg")
             self._reg = ac.get("r", "NoReg")
             aircraft["icao24"] = ac.get("hex", None)
             aircraft["type"] = ac.get("t", None)
