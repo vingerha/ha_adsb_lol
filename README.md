@@ -13,7 +13,7 @@
 - restart HA
 - add your setup via Settings > Devices & Services
 
-For below picyure, use/install the auto-entities card as well
+For below graphical rep., use/install the auto-entities card as well
 
 
  ![image](https://github.com/vingerha/ha_adsb_lol/assets/44190435/3bf7716a-9bf2-4c43-86fb-881fd3edc4d2)
