@@ -11,12 +11,17 @@
 - add this as a Custom repository to HACS, then:
 - HACS > Integrations > adsb ...download
 - restart HA
-- add your setup via Settings > Devices & Services 
+- add your setup via Settings > Devices & Services
+
+For below graphical rep., use/install the auto-entities card as well
 
 
- ![image](https://github.com/vingerha/ha_adsb_lol/assets/44190435/7ea6450f-f403-4188-85a7-5499798df759)
+ ![image](https://github.com/vingerha/ha_adsb_lol/assets/44190435/3bf7716a-9bf2-4c43-86fb-881fd3edc4d2)
 
- ![image](https://github.com/vingerha/ha_adsb_lol/assets/44190435/b9b4fd03-b48b-4cb5-8f93-900ae9434af9)
+
+ ![image](https://github.com/vingerha/ha_adsb_lol/assets/44190435/9400a0c5-a581-4a5d-87ea-b8f36fe0f513)
+
+
 
 Available entity pictures
 ![image](https://github.com/vingerha/ha_adsb_lol/assets/44190435/5adb13de-17fe-4edf-ac43-78788a2f53c1)
