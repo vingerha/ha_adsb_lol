@@ -1,5 +1,13 @@
 ![GitHub release (with filter)](https://img.shields.io/github/v/release/vingerha/ha_adsb_lol)
 
+
+⚠️ Deprecation Notice
+
+This project is no longer actively maintained.
+No further updates, bug fixes, or security patches will be provided. Use at your own risk — issues and pull requests may not receive a response.
+
+Please consider using alternatives as the flightradar integration
+
 # Collects aircraft from ADSB.lol into Home Assistant
 - configuration via the GUI
 - Track flight based on icao, callsign or registration, either via entry in the config or via input_text/select
